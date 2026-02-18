@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shopq/app/core/utils/helpers.dart';
-import 'package:shopq/app/global_widgets/pin_code_helper.dart';
 import 'package:shopq/app/routes/app_routes.dart';
 
 class AuthController extends GetxController
@@ -44,7 +43,8 @@ class AuthController extends GetxController
     if (!isOtpSent.value) {
       isOtpSent.value = true;
     } else {
-      if (otpController.text == "123456") {
+      Get.offNamed(Routes.location);
+      /*if (otpController.text == "123456") {
         Get.offNamed(Routes.location);
       } else {
         AppHelpers.showSnackBar(
@@ -52,7 +52,7 @@ class AuthController extends GetxController
           message: "Please enter the correct 6-digit code (123456)",
           isError: true,
         );
-      }
+      }*/
     }
   }
 

@@ -34,7 +34,7 @@ class ProfileScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18),
                   gradient: const LinearGradient(
                     colors: <Color>[
-                      Color(0xFF1D4ED8),
+                      Color(0xFF053E1D),
                       Color(0xFF15803D),
                     ],
                   ),
@@ -46,7 +46,7 @@ class ProfileScreen extends StatelessWidget {
                       backgroundColor: Colors.white,
                       child: Icon(
                         CupertinoIcons.person_fill,
-                        color: Color(0xFF1D4ED8),
+                        color: Color(0xFF053E1D),
                         size: 32,
                       ),
                     ),

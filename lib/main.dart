@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shopq/app.dart';
 
-import 'app/shopq_demo/shopq_app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ShopQDemoApp());
+  runApp(const MyApp());
 }
 

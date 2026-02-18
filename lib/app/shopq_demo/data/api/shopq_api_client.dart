@@ -37,7 +37,7 @@ class ShopqApiClient {
   final String _baseUrl;
   late final Dio _dio;
   String? _token;
-  static const String _lanBaseUrl = 'http://192.168.1.6:8000/api/v1/';
+  static const String _lanBaseUrl = 'https://api.shopq.in/api/v1/';
 
   static String get _defaultBaseUrl {
     const definedBaseUrl = String.fromEnvironment('SHOPQ_API_BASE_URL');

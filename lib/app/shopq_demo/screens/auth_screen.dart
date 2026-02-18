@@ -102,7 +102,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: <Color>[Color(0xFF1D4ED8), Color(0xFF15803D)],
+                          colors: <Color>[Color(0xFF053E1D), Color(0xFF15803D)],
                         ),
                         borderRadius: BorderRadius.circular(24),
                       ),
@@ -132,17 +132,17 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 22),
-                    TabBar(
+                    // const SizedBox(height: 22),
+                    /*TabBar(
                       controller: _tabController,
                       tabs: const <Tab>[
                         Tab(text: 'Login'),
                         Tab(text: 'Sign Up'),
                       ],
-                    ),
+                    ),*/
                     const SizedBox(height: 18),
                     SizedBox(
-                      height: 360,
+                      height: 400,
                       child: TabBarView(
                         controller: _tabController,
                         children: <Widget>[
@@ -226,9 +226,11 @@ class _AuthForm extends StatelessWidget {
           ),
           const SizedBox(height: 14),
         ],
+        const SizedBox(height: 18,),
         TextField(
           controller: phoneController,
           keyboardType: TextInputType.phone,
+          maxLength: 10,
           decoration: const InputDecoration(
             labelText: 'Phone Number',
             prefixIcon: Icon(CupertinoIcons.phone),
@@ -241,6 +243,7 @@ class _AuthForm extends StatelessWidget {
               child: TextField(
                 controller: otpController,
                 keyboardType: TextInputType.number,
+                maxLength: 6,
                 decoration: const InputDecoration(
                   labelText: 'OTP',
                   prefixIcon: Icon(CupertinoIcons.number),

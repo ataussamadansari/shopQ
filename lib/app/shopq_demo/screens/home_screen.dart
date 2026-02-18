@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: CustomAppBar(
             title: 'ShopQ',
             showBackButton: false,
-            actions: <Widget>[
+            /*actions: <Widget>[
               IconButton(
                 onPressed: () => Navigator.pushNamed(context, RouteNames.search),
                 icon: const Icon(CupertinoIcons.search),
@@ -114,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-            ],
+            ],*/
           ),
           body: store.isHomeLoading
               ? const _HomeLoadingView()
