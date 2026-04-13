@@ -28,7 +28,7 @@ class ApiServices {
         statusCode: e.response?.statusCode,
       );
     } catch (e) {
-      return ApiResponse.error('Unexpected error : $e');
+      return ApiResponse.error('$e');
     }
   }
 
@@ -58,7 +58,7 @@ class ApiServices {
         statusCode: e.response?.statusCode,
       );
     } catch (e) {
-      return ApiResponse.error('Unexpected error : $e');
+      return ApiResponse.error('$e');
     }
   }
 
@@ -67,7 +67,7 @@ class ApiServices {
   Future<ApiResponse<T>> get<T>(
       String endPoint,
       T Function(dynamic) fromJson, {
-        Map<String, double>? queryParameters,
+        Map<String, dynamic>? queryParameters,
         CancelToken? cancelToken,
       }) async {
     return handleApiCall<T>(
@@ -157,13 +157,4 @@ class ApiServices {
       fromJson,
     );
   }
-
-
-
-
-
-
-
-
-
 }

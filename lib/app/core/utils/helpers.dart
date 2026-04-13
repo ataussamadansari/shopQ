@@ -83,6 +83,4 @@ class AppHelpers
           return 'assets/gifs/something_wrong.gif';
       }
     }
-
-
 }

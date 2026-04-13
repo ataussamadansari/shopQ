@@ -7,6 +7,5 @@ class AppBindings extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<StorageServices>(() => StorageServices(), fenix: true);
-
   }
 }

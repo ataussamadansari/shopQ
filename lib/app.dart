@@ -6,7 +6,6 @@ import 'app/core/bindings/app_bindings.dart';
 import 'app/core/themes/app_theme.dart';
 import 'app/routes/app_pages.dart';
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -17,12 +16,9 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.light,
       // darkTheme: AppTheme.dark,
       theme: AppTheme.light,
-      initialRoute: Routes.home,
+      initialRoute: Routes.splash,
       getPages: AppPages.routes,
       initialBinding: AppBindings(),
     );
   }
 }
-
-
-
