@@ -7,6 +7,7 @@ import '../../../data/models/home/tabs.dart';
 import '../../../data/repositories/home/home_repository.dart';
 import '../../../data/services/storage/storage_services.dart';
 import '../../../routes/app_routes.dart';
+import '../../product_detail_view/views/product_detail_screen.dart';
 
 class HomeController extends GetxController {
   final HomeRepository _repo = HomeRepository();
@@ -73,7 +74,18 @@ class HomeController extends GetxController {
   }
 
   void goToProductDetail(String slug) {
-    Get.toNamed(Routes.productDetail, arguments: {'slug': slug});
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.75,
+        child: ProductDetailScreen(slug: slug),
+      ),
+    );
   }
 
   void goToCart() => Get.toNamed(Routes.cart);

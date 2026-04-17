@@ -184,6 +184,28 @@ class ApiProvider {
     }
   }
 
+  //  Generic PATCH-Call
+  Future<Response> patch(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.patch(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
+      return response;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   //  Generic DELETE-Call
   Future<Response> delete(
     String path, {

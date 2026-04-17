@@ -52,7 +52,7 @@ class CartRepository {
   Future<ApiResponse<CartModel>> updateItem(int itemId, int qty) async {
     try {
       final endpoint = ApiConstants.cartItem.replaceFirst('{item}', '$itemId');
-      final res = await _api.put<Map<String, dynamic>>(
+      final res = await _api.patch<Map<String, dynamic>>(
         endpoint,
         (data) => data as Map<String, dynamic>,
         data: {'qty': qty},

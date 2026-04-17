@@ -41,6 +41,10 @@ class ApiConstants {
 
   static const String profile = "/me/profile";
 
+  // ------------------ VENDOR Endpoints ------------------
+  static const String vendorProducts = "/vendor/products";
+  static const String vendorProductById = "/vendor/products/{id}";
+
   // Headers
   static const String contentType = 'application/json';
   static const String authorization = 'Authorization';

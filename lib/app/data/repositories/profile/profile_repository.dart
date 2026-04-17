@@ -24,7 +24,7 @@ class ProfileRepository {
 
   Future<ApiResponse<Me>> updateProfile(Map<String, dynamic> data) async {
     try {
-      final res = await _api.put<Me>(
+      final res = await _api.patch<Me>(
         ApiConstants.profile,
         (d) => Me.fromJson(d),
         data: data,

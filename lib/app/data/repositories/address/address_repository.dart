@@ -45,6 +45,26 @@ class AddressRepository {
     }
   }
 
+  Future<ApiResponse<AddressModel>> updateAddress(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final endpoint = ApiConstants.addressById.replaceFirst('{id}', '$id');
+      final res = await _api.patch<Map<String, dynamic>>(
+        endpoint,
+        (d) => d as Map<String, dynamic>,
+        data: data,
+      );
+      if (res.success && res.data != null) {
+        return ApiResponse.success(AddressModel.fromJson(res.data!['data']));
+      }
+      return ApiResponse.error(res.message);
+    } on DioException catch (e) {
+      return ApiResponse.error(e.message ?? 'Something went wrong');
+    }
+  }
+
   Future<ApiResponse<AddressModel>> setDefault(int id) async {
     try {
       final endpoint = ApiConstants.addressDefault.replaceFirst('{id}', '$id');

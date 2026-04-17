@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/themes/app_colors.dart';
@@ -18,112 +17,84 @@ class HomeScreen extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final statusBarH = MediaQuery.of(context).padding.top;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: Obx(() {
-        final color = controller.activeColor;
-        final isLoading = controller.isLoading.value;
-        final hasError =
-            controller.errorMessage.value.isNotEmpty &&
-            controller.sections.isEmpty;
-        final sections = controller.sections.toList();
-        final tabs = controller.tabs.toList();
-        final selectedTab = controller.selectedTabIndex.value;
-        final pinCode = controller.pinCode;
-        final userName = controller.userName;
+    return Container(
+      padding: EdgeInsets.only(top: statusBarH),
+      color: Colors.blue,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F5F5),
+        body: Obx(() {
+          final color = controller.activeColor;
+          final isLoading = controller.isLoading.value;
+          final hasError =
+              controller.errorMessage.value.isNotEmpty &&
+              controller.sections.isEmpty;
+          final sections = controller.sections.toList();
+          final tabs = controller.tabs.toList();
+          final selectedTab = controller.selectedTabIndex.value;
+          final pinCode = controller.pinCode;
+          final userName = controller.userName;
 
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: _homeOverlayStyle(color),
-          child: Stack(
-            children: [
-              NotificationListener<ScrollNotification>(
-                onNotification: (n) {
-                  controller.onScrollChanged(n.metrics.pixels);
-                  return false;
-                },
-                child: CustomScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  slivers: [
-                    // App bar — draws behind status bar, pads itself
-                    SliverToBoxAdapter(
-                      child: _AppBar(
-                        color: color,
-                        userName: userName,
-                        pinCode: pinCode,
-                        statusBarHeight: statusBarH,
-                        onCart: controller.goToCart,
-                        onProfile: controller.goToProfile,
-                      ),
-                    ),
-
-                    // Sticky header — pins below status bar
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _StickyHeaderDelegate(
-                        color: color,
-                        tabs: tabs,
-                        selectedTab: selectedTab,
-                        onTabSelected: controller.onTabSelected,
-                        topPadding: 0,
-                      ),
-                    ),
-
-                    if (isLoading)
-                      SliverToBoxAdapter(child: _HomeShimmer())
-                    else if (hasError)
-                      SliverToBoxAdapter(
-                        child: _ErrorView(
-                          message: controller.errorMessage.value,
-                          onRetry: controller.loadHome,
-                        ),
-                      )
-                    else
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (_, i) => _SectionWidget(
-                            section: sections[i],
-                            controller: controller,
-                          ),
-                          childCount: sections.length,
-                        ),
-                      ),
-
-                    const SliverToBoxAdapter(child: SizedBox(height: 32)),
-                  ],
+          return NotificationListener<ScrollNotification>(
+            onNotification: (n) {
+              controller.onScrollChanged(n.metrics.pixels);
+              return false;
+            },
+            child: CustomScrollView(
+              physics: const ClampingScrollPhysics(),
+              slivers: [
+                // App bar — draws behind status bar, pads itself
+                SliverToBoxAdapter(
+                  child: _AppBar(
+                    color: color,
+                    userName: userName,
+                    pinCode: pinCode,
+                    statusBarHeight: statusBarH,
+                    onCart: controller.goToCart,
+                    onProfile: controller.goToProfile,
+                  ),
                 ),
-              ),
 
-              // Status bar color overlay — always on top, same color as header
-              // This ensures status bar stays colored when sticky header is pinned
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: statusBarH,
-                child: ColoredBox(color: color),
-              ),
-            ],
-          ),
-        );
-      }),
+                // Sticky header — Now FLOATS (hides on scroll down, shows on scroll up)
+                SliverPersistentHeader(
+                  pinned: true, // Changed to false for Flipkart behavior
+                  floating: false, // Reappears on scroll up
+                  delegate: _StickyHeaderDelegate(
+                    color: color,
+                    tabs: tabs,
+                    selectedTab: selectedTab,
+                    onTabSelected: controller.onTabSelected,
+                    topPadding: statusBarH,
+                  ),
+                ),
+
+                if (isLoading)
+                  SliverToBoxAdapter(child: _HomeShimmer())
+                else if (hasError)
+                  SliverToBoxAdapter(
+                    child: _ErrorView(
+                      message: controller.errorMessage.value,
+                      onRetry: controller.loadHome,
+                    ),
+                  )
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (_, i) => _SectionWidget(
+                        section: sections[i],
+                        controller: controller,
+                      ),
+                      childCount: sections.length,
+                    ),
+                  ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  APP BAR  — pure StatelessWidget, no Obx
-// ─────────────────────────────────────────────────────────────────────────────
-SystemUiOverlayStyle _homeOverlayStyle(Color color) {
-  final useDarkIcons = color.computeLuminance() > 0.55;
-
-  return (useDarkIcons ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light)
-      .copyWith(
-        statusBarColor: Colors.transparent,
-        statusBarBrightness: useDarkIcons ? Brightness.light : Brightness.dark,
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarDividerColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      );
 }
 
 class _AppBar extends StatelessWidget {
@@ -147,7 +118,8 @@ class _AppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: color,
-      padding: EdgeInsets.fromLTRB(16, statusBarHeight + 10, 16, 12),
+      // padding: EdgeInsets.fromLTRB(16, statusBarHeight + 10, 16, 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         children: [
           Expanded(
@@ -241,13 +213,14 @@ class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   static const double _tabsH = 62;
   static const double _topPad = 8;
   static const double _gap = 6;
-
   static const double _contentH = _topPad + _searchH + _gap + _tabsH + 6;
 
+  // Extent should include topPadding to cover status bar area when floating
   @override
-  double get maxExtent => _contentH;
+  double get maxExtent => _contentH + topPadding;
+
   @override
-  double get minExtent => _contentH;
+  double get minExtent => _contentH + topPadding;
 
   @override
   Widget build(
@@ -255,140 +228,114 @@ class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return SizedBox(
-      height: _contentH,
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          boxShadow: overlapsContent
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 14,
-                    offset: const Offset(0, 4),
+    // When floating (overlapsContent is true), we show the status bar padding.
+    // This prevents the search bar from going inside the status bar icons.
+    final effectiveTopPadding = overlapsContent ? topPadding : 0.0;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        boxShadow: overlapsContent
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
+      ),
+      padding: EdgeInsets.fromLTRB(16, effectiveTopPadding + _topPad, 16, 2),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Search bar
+          GestureDetector(
+            onTap: () => Get.toNamed(Routes.productList),
+            child: Container(
+              height: _searchH,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  const SizedBox(width: 12),
+                  Icon(Icons.search, color: Colors.grey.shade400, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Search products...',
+                      style: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
-                ]
-              : null,
-        ),
-        padding: const EdgeInsets.fromLTRB(12, _topPad, 12, 0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Search bar
-            GestureDetector(
-              onTap: () => Get.toNamed(Routes.productList),
-              child: Container(
-                height: _searchH,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 12),
-                    Icon(Icons.search, color: Colors.grey.shade400, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Search products...',
-                        style: TextStyle(
-                          color: Colors.grey.shade400,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 8,
-                      ),
-                      width: 1,
-                      color: Colors.grey.shade200,
-                    ),
-                    Icon(
-                      Icons.tune_rounded,
-                      color: Colors.grey.shade400,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 12),
-                  ],
-                ),
+                  Icon(
+                    Icons.tune_rounded,
+                    color: Colors.grey.shade400,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 12),
+                ],
               ),
             ),
-            const SizedBox(height: _gap),
-            // Tabs
-            SizedBox(
-              height: _tabsH,
-              child: tabs.isEmpty
-                  ? const SizedBox()
-                  : ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: tabs.length,
-                      itemBuilder: (_, i) {
-                        final tab = tabs[i];
-                        final isSel = selectedTab == i;
-                        return GestureDetector(
-                          onTap: () => onTabSelected(i),
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 4),
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: isSel
-                                        ? Colors.white.withValues(alpha: 0.22)
-                                        : Colors.transparent,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    _tabIcon(tab.icon ?? ''),
-                                    size: 22,
-                                    color: isSel
-                                        ? Colors.white
-                                        : Colors.white70,
-                                  ),
+          ),
+          const SizedBox(height: _gap),
+          // Tabs
+          SizedBox(
+            height: _tabsH,
+            child: tabs.isEmpty
+                ? const SizedBox()
+                : ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: tabs.length,
+                    itemBuilder: (_, i) {
+                      final tab = tabs[i];
+                      final isSel = selectedTab == i;
+                      return GestureDetector(
+                        onTap: () => onTabSelected(i),
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _tabIcon(tab.icon ?? ''),
+                                size: 22,
+                                color: isSel ? Colors.white : Colors.white70,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                tab.label ?? '',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: isSel
+                                      ? FontWeight.w700
+                                      : FontWeight.w400,
+                                  color: isSel ? Colors.white : Colors.white70,
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  tab.label ?? '',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: isSel
-                                        ? FontWeight.w700
-                                        : FontWeight.w400,
-                                    color: isSel
-                                        ? Colors.white
-                                        : Colors.white70,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
+                              ),
+                              const SizedBox(height: 4),
+                              if (isSel)
                                 Container(
-                                  height: 3,
-                                  width: isSel ? 36 : 0,
+                                  height: 2.5,
+                                  width: 24,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                              ],
-                            ),
+                            ],
                           ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -606,97 +553,6 @@ class _BannerSliderState extends State<_BannerSlider> {
 // ─────────────────────────────────────────────────────────────────────────────
 //  CATEGORY CHIPS
 // ─────────────────────────────────────────────────────────────────────────────
-class _CategoryChips extends StatelessWidget {
-  final SectionModel section;
-  final HomeController controller;
-  const _CategoryChips({required this.section, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    final items = section.items ?? [];
-    if (items.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 16),
-        _SectionHeader(title: section.title ?? 'Categories'),
-        SizedBox(
-          height: 96,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: items.length,
-            itemBuilder: (_, i) {
-              final cat = items[i];
-              final url = controller.resolveImageUrl(
-                cat.featuredImage ?? cat.image,
-              );
-              return GestureDetector(
-                onTap: () => controller.goToProductList(
-                  categorySlug: cat.slug,
-                  categoryName: cat.name,
-                ),
-                child: Container(
-                  width: 72,
-                  margin: const EdgeInsets.only(right: 10),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
-                          child: url.isNotEmpty
-                              ? CachedNetworkImage(
-                                  imageUrl: url,
-                                  fit: BoxFit.cover,
-                                  placeholder: (_, __) => _shimmerBox(),
-                                  errorWidget: (_, __, ___) => const Icon(
-                                    Icons.category_outlined,
-                                    color: Colors.grey,
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.category_outlined,
-                                  color: Colors.grey,
-                                ),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        cat.name ?? '',
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A1A1A),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 //  CATEGORY GRID
 // ─────────────────────────────────────────────────────────────────────────────
@@ -811,7 +667,7 @@ class _ProductCarousel extends StatelessWidget {
           onViewAll: () => controller.goToProductList(),
         ),
         SizedBox(
-          height: 260,
+          height: 180,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -846,7 +702,7 @@ class _ProductCard extends StatelessWidget {
         if (product.slug != null) controller.goToProductDetail(product.slug!);
       },
       child: Container(
-        width: 158,
+        width: 120,
         margin: const EdgeInsets.only(right: 10),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -863,7 +719,7 @@ class _ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 130,
+              height: 100,
               child: Stack(
                 children: [
                   ClipRRect(
@@ -928,7 +784,8 @@ class _ProductCard extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
+
+            /*Padding(
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
               child: Container(
                 width: double.infinity,
@@ -948,7 +805,8 @@ class _ProductCard extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
+            ), */
+            Spacer(),
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
               child: Text(

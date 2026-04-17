@@ -9,9 +9,9 @@ class StorageServices extends GetxService {
   RxString pinCode = "".obs;
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
-    await GetStorage.init();
+    // GetStorage is already initialized in main.dart
     _box = GetStorage();
 
     // Initialize reactive variables from storage

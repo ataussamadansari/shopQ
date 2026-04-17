@@ -100,15 +100,4 @@ class CategoryGridWidget extends StatelessWidget {
       ],
     );
   }
-
-  Color _backgroundColorFor(int index) {
-    const colors = [
-      Color(0xFFFDEBCB),
-      Color(0xFFDFF5DA),
-      Color(0xFFFBE1E4),
-      Color(0xFFE0F2F7),
-    ];
-
-    return colors[index % colors.length];
-  }
 }

@@ -146,6 +146,11 @@ class ProfileScreen extends GetView<ProfileController> {
         'route': Routes.orders,
       },
       {
+        'icon': Icons.inventory_2_outlined,
+        'label': 'My Products',
+        'route': Routes.vendorProducts,
+      },
+      {
         'icon': Icons.location_on_outlined,
         'label': 'Manage Addresses',
         'route': null,

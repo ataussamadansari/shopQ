@@ -8,9 +8,9 @@ class ApiServices {
 
   // generic method to handle API calls
   Future<ApiResponse<T>> handleApiCall<T>(
-      Future<Response> Function() apiCall,
-      T Function(dynamic) fromJson,
-      ) async {
+    Future<Response> Function() apiCall,
+    T Function(dynamic) fromJson,
+  ) async {
     try {
       final response = await apiCall();
 
@@ -34,16 +34,15 @@ class ApiServices {
 
   // generic method to handle List API calls
   Future<ApiResponse<List<T>>> handleListApiCall<T>(
-      Future<Response> Function() apiCall,
-      T Function(dynamic) fromJson,
-      ) async {
+    Future<Response> Function() apiCall,
+    T Function(dynamic) fromJson,
+  ) async {
     try {
       final response = await apiCall();
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final List<dynamic> jsonList = response.data;
-        final List<T> dataList =
-        jsonList
+        final List<T> dataList = jsonList
             .map((json) => fromJson(json as Map<String, dynamic>))
             .toList();
         return ApiResponse.success(dataList);
@@ -65,13 +64,13 @@ class ApiServices {
   // specific GET method
 
   Future<ApiResponse<T>> get<T>(
-      String endPoint,
-      T Function(dynamic) fromJson, {
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-      }) async {
+    String endPoint,
+    T Function(dynamic) fromJson, {
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
     return handleApiCall<T>(
-          () => _apiProvider.get(
+      () => _apiProvider.get(
         endPoint,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
@@ -80,16 +79,16 @@ class ApiServices {
     );
   }
 
-// specific GET method for List
+  // specific GET method for List
 
   Future<ApiResponse<List<T>>> getList<T>(
-      String endPoint,
-      T Function(dynamic) fromJson, {
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-      }) async {
+    String endPoint,
+    T Function(dynamic) fromJson, {
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
     return handleListApiCall<T>(
-          () => _apiProvider.get(
+      () => _apiProvider.get(
         endPoint,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
@@ -98,17 +97,17 @@ class ApiServices {
     );
   }
 
-// specific Post method
+  // specific Post method
 
   Future<ApiResponse<T>> post<T>(
-      String endPoint,
-      T Function(dynamic) fromJson, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-      }) async {
+    String endPoint,
+    T Function(dynamic) fromJson, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
     return handleApiCall<T>(
-          () => _apiProvider.post(
+      () => _apiProvider.post(
         endPoint,
         data: data,
         queryParameters: queryParameters,
@@ -118,17 +117,37 @@ class ApiServices {
     );
   }
 
-// specific Put method
+  // specific Put method
 
   Future<ApiResponse<T>> put<T>(
-      String endPoint,
-      T Function(dynamic) fromJson, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-      }) async {
+    String endPoint,
+    T Function(dynamic) fromJson, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
     return handleApiCall<T>(
-          () => _apiProvider.put(
+      () => _apiProvider.put(
+        endPoint,
+        data: data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+      ),
+      fromJson,
+    );
+  }
+
+  // specific Patch method
+
+  Future<ApiResponse<T>> patch<T>(
+    String endPoint,
+    T Function(dynamic) fromJson, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
+    return handleApiCall<T>(
+      () => _apiProvider.patch(
         endPoint,
         data: data,
         queryParameters: queryParameters,
@@ -141,14 +160,14 @@ class ApiServices {
   // specific DELETE method
 
   Future<ApiResponse<T>> delete<T>(
-      String endPoint,
-      T Function(dynamic) fromJson, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-      }) async {
+    String endPoint,
+    T Function(dynamic) fromJson, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
     return handleApiCall<T>(
-          () => _apiProvider.delete(
+      () => _apiProvider.delete(
         endPoint,
         data: data,
         queryParameters: queryParameters,

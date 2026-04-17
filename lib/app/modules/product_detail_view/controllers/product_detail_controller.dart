@@ -18,15 +18,14 @@ class ProductDetailController extends GetxController {
   final selectedVariantId = Rx<int?>(null);
   final qty = 1.obs;
 
-  String? _slug;
+  final String slug;
+
+  ProductDetailController({required this.slug});
 
   @override
   void onInit() {
     super.onInit();
-    if (Get.arguments is Map) {
-      _slug = Get.arguments['slug'];
-    }
-    if (_slug != null) loadProduct();
+    loadProduct();
   }
 
   Future<void> loadProduct() async {
@@ -34,7 +33,7 @@ class ProductDetailController extends GetxController {
     errorMessage.value = '';
 
     final res = await _productRepo.getProduct(
-      _slug!,
+      slug,
       pincode: _storage.getPinCode(),
     );
     if (res.success && res.data != null) {

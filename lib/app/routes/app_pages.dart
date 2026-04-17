@@ -60,7 +60,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.productDetail,
-      page: () => const ProductDetailScreen(),
+      page: () => ProductDetailScreen(slug: Get.arguments['slug']),
       binding: ProductDetailBinding(),
       transition: Transition.rightToLeft,
     ),

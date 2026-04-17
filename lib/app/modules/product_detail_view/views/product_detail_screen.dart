@@ -7,7 +7,17 @@ import '../../../data/models/product/product_detail_model.dart';
 import '../controllers/product_detail_controller.dart';
 
 class ProductDetailScreen extends GetView<ProductDetailController> {
-  const ProductDetailScreen({super.key});
+  final String slug;
+
+  ProductDetailScreen({super.key, required this.slug}) {
+    if (!Get.isRegistered<ProductDetailController>(tag: slug)) {
+      Get.put(ProductDetailController(slug: slug), tag: slug);
+    }
+  }
+
+  @override
+  ProductDetailController get controller =>
+      Get.find<ProductDetailController>(tag: slug);
 
   @override
   Widget build(BuildContext context) {
@@ -20,39 +30,47 @@ class ProductDetailScreen extends GetView<ProductDetailController> {
       final selectedVariant = controller.selectedVariantId.value;
       final isAddingToCart = controller.isAddingToCart.value;
 
-      return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: Color(0xFF1A1A1A)),
-          title: Text(
-            p?.title ?? '',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Color(0xFF1A1A1A),
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
+      return Container(
+        color: Colors.white,
+        child: Column(
+          children: [
+            // Top bar with close and share
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      if (Get.isRegistered<ProductDetailController>(
+                        tag: slug,
+                      )) {
+                        Get.delete<ProductDetailController>(tag: slug);
+                      }
+                      Get.back();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.share_outlined),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
             ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.share_outlined),
-              onPressed: () {},
+            Expanded(
+              child: isLoading
+                  ? _buildShimmer()
+                  : error.isNotEmpty
+                  ? Center(child: Text(error))
+                  : p == null
+                  ? const SizedBox()
+                  : _buildBody(p, selectedImage, qty, selectedVariant),
             ),
+            if (!isLoading && p != null)
+              _buildBottomBar(p.stock > 0, isAddingToCart),
           ],
         ),
-        body: isLoading
-            ? _buildShimmer()
-            : error.isNotEmpty
-            ? Center(child: Text(error))
-            : p == null
-            ? const SizedBox()
-            : _buildBody(p, selectedImage, qty, selectedVariant),
-        bottomNavigationBar: (!isLoading && p != null)
-            ? _buildBottomBar(p.stock > 0, isAddingToCart)
-            : null,
       );
     });
   }
@@ -421,8 +439,8 @@ class ProductDetailScreen extends GetView<ProductDetailController> {
     if (url.contains('localhost') || url.contains('127.0.0.1')) {
       // Replace local URL with production base
       return url
-          .replaceAll('http://localhost:8000', 'https://shopq.aradhyatech.com')
-          .replaceAll('http://127.0.0.1:8000', 'https://shopq.aradhyatech.com');
+          .replaceAll('http://localhost:8000', 'http://192.168.1.4:8000')
+          .replaceAll('http://127.0.0.1:8000', 'http://192.168.1.4:8000');
     }
     return url;
   }
