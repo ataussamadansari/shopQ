@@ -13,86 +13,94 @@ import '../controllers/home_controller.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final statusBarH = MediaQuery.of(context).padding.top;
 
-    return Container(
-      padding: EdgeInsets.only(top: statusBarH),
-      color: Colors.blue,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
-        body: Obx(() {
-          final color = controller.activeColor;
-          final isLoading = controller.isLoading.value;
-          final hasError =
-              controller.errorMessage.value.isNotEmpty &&
-              controller.sections.isEmpty;
-          final sections = controller.sections.toList();
-          final tabs = controller.tabs.toList();
-          final selectedTab = controller.selectedTabIndex.value;
-          final pinCode = controller.pinCode;
-          final userName = controller.userName;
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: Obx(() {
+        final color = controller.activeColor;
+        final isLoading = controller.isLoading.value;
+        final hasError =
+            controller.errorMessage.value.isNotEmpty &&
+            controller.sections.isEmpty;
+        final sections = controller.sections.toList();
+        final tabs = controller.tabs.toList();
+        final selectedTab = controller.selectedTabIndex.value;
+        final pinCode = controller.pinCode;
+        final userName = controller.userName;
 
-          return NotificationListener<ScrollNotification>(
-            onNotification: (n) {
-              controller.onScrollChanged(n.metrics.pixels);
-              return false;
-            },
-            child: CustomScrollView(
-              physics: const ClampingScrollPhysics(),
-              slivers: [
-                // App bar — draws behind status bar, pads itself
+        return NotificationListener<ScrollNotification>(
+          onNotification: (n) {
+            controller.onScrollChanged(n.metrics.pixels);
+            return false;
+          },
+          child: CustomScrollView(
+            physics: const ClampingScrollPhysics(),
+            slivers: [
+              // App bar — draws behind status bar, pads itself
+              /*SliverToBoxAdapter(
+                child: _AppBar(
+                  color: color,
+                  userName: userName,
+                  pinCode: pinCode,
+                  statusBarHeight: statusBarH,
+                  onCart: controller.goToCart,
+                  onProfile: controller.goToProfile,
+                ),
+              ),*/
+              _AppBar(
+                color: color,
+                userName: userName,
+                pinCode: pinCode,
+                statusBarHeight: statusBarH,
+                onCart: controller.goToCart,
+                onProfile: controller.goToProfile,
+                tabs: tabs,
+                selectedTab: selectedTab,
+                onTabSelected: controller.onTabSelected,
+                topPadding: statusBarH,
+              ),
+
+              // Sticky header — Now FLOATS (hides on scroll down, shows on scroll up)
+              /*SliverPersistentHeader(
+                pinned: true, // Changed to false for Flipkart behavior
+                floating: true, // Reappears on scroll up
+                delegate: _StickyHeaderDelegate(
+                  color: color,
+                  tabs: tabs,
+                  selectedTab: selectedTab,
+                  onTabSelected: controller.onTabSelected,
+                  topPadding: statusBarH,
+                ),
+              ),*/
+              if (isLoading)
+                SliverToBoxAdapter(child: _HomeShimmer())
+              else if (hasError)
                 SliverToBoxAdapter(
-                  child: _AppBar(
-                    color: color,
-                    userName: userName,
-                    pinCode: pinCode,
-                    statusBarHeight: statusBarH,
-                    onCart: controller.goToCart,
-                    onProfile: controller.goToProfile,
+                  child: _ErrorView(
+                    message: controller.errorMessage.value,
+                    onRetry: controller.loadHome,
+                  ),
+                )
+              else
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (_, i) => _SectionWidget(
+                      section: sections[i],
+                      controller: controller,
+                    ),
+                    childCount: sections.length,
                   ),
                 ),
 
-                // Sticky header — Now FLOATS (hides on scroll down, shows on scroll up)
-                SliverPersistentHeader(
-                  pinned: true, // Changed to false for Flipkart behavior
-                  floating: false, // Reappears on scroll up
-                  delegate: _StickyHeaderDelegate(
-                    color: color,
-                    tabs: tabs,
-                    selectedTab: selectedTab,
-                    onTabSelected: controller.onTabSelected,
-                    topPadding: statusBarH,
-                  ),
-                ),
-
-                if (isLoading)
-                  SliverToBoxAdapter(child: _HomeShimmer())
-                else if (hasError)
-                  SliverToBoxAdapter(
-                    child: _ErrorView(
-                      message: controller.errorMessage.value,
-                      onRetry: controller.loadHome,
-                    ),
-                  )
-                else
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (_, i) => _SectionWidget(
-                        section: sections[i],
-                        controller: controller,
-                      ),
-                      childCount: sections.length,
-                    ),
-                  ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
-              ],
-            ),
-          );
-        }),
-      ),
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+            ],
+          ),
+        );
+      }),
     );
   }
 }
@@ -105,6 +113,11 @@ class _AppBar extends StatelessWidget {
   final VoidCallback onCart;
   final VoidCallback onProfile;
 
+  final List tabs;
+  final int selectedTab;
+  final void Function(int) onTabSelected;
+  final double topPadding;
+
   const _AppBar({
     required this.color,
     required this.userName,
@@ -112,11 +125,112 @@ class _AppBar extends StatelessWidget {
     required this.statusBarHeight,
     required this.onCart,
     required this.onProfile,
+
+    required this.tabs,
+    required this.selectedTab,
+    required this.onTabSelected,
+    required this.topPadding,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SliverAppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: color,
+      pinned: true,
+      floating: true,
+      title: Text("ShopQ", style: TextStyle(color: Colors.white)),
+      actions: [
+        IconButton(
+          onPressed: () {
+            Get.toNamed(Routes.cart);
+          },
+          icon: Icon(Icons.shopping_cart_outlined, color: Colors.white),
+        ),
+        IconButton(
+          onPressed: () {
+            Get.toNamed(Routes.profile);
+          },
+          icon: Icon(Icons.person, color: Colors.white),
+        ),
+      ],
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(127),
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: SearchBar(
+                readOnly: true,
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                elevation: WidgetStatePropertyAll(0),
+                padding: WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(horizontal: 12),
+                ),
+                leading: Icon(Icons.search),
+                trailing: [Icon(Icons.mic)],
+                hintText: "Search Here...",
+              ),
+            ),
+
+            SizedBox(
+              height: 55,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: tabs.length,
+                itemBuilder: (_, i) {
+                  final tab = tabs[i];
+                  final isSel = selectedTab == i;
+                  return GestureDetector(
+                    onTap: () => onTabSelected(i),
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _tabIcon(tab.icon ?? ''),
+                            size: 22,
+                            color: isSel ? Colors.white : Colors.white70,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            tab.label ?? '',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: isSel
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                              color: isSel ? Colors.white : Colors.white70,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          if (isSel)
+                            Container(
+                              height: 2.5,
+                              width: 24,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    /*return Container(
       color: color,
       // padding: EdgeInsets.fromLTRB(16, statusBarHeight + 10, 16, 12),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -170,7 +284,7 @@ class _AppBar extends StatelessWidget {
           _iconBtn(Icons.person_outline_rounded, onProfile),
         ],
       ),
-    );
+    );*/
   }
 
   Widget _iconBtn(IconData icon, VoidCallback onTap, {EdgeInsets? margin}) {
@@ -188,6 +302,19 @@ class _AppBar extends StatelessWidget {
         child: Icon(icon, color: Colors.white, size: 20),
       ),
     );
+  }
+
+  IconData _tabIcon(String key) {
+    switch (key) {
+      case 'tag':
+        return Icons.local_offer_rounded;
+      case 'leaf':
+        return Icons.eco_rounded;
+      case 'rice':
+        return Icons.rice_bowl_rounded;
+      default:
+        return Icons.grid_view_rounded;
+    }
   }
 }
 
@@ -367,6 +494,7 @@ class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
 class _SectionWidget extends StatelessWidget {
   final SectionModel section;
   final HomeController controller;
+
   const _SectionWidget({required this.section, required this.controller});
 
   @override
@@ -395,6 +523,7 @@ class _SectionWidget extends StatelessWidget {
 class _BannerSlider extends StatefulWidget {
   final SectionModel section;
   final HomeController controller;
+
   const _BannerSlider({required this.section, required this.controller});
 
   @override
@@ -559,6 +688,7 @@ class _BannerSliderState extends State<_BannerSlider> {
 class _CategoryGrid extends StatelessWidget {
   final SectionModel section;
   final HomeController controller;
+
   const _CategoryGrid({required this.section, required this.controller});
 
   @override
@@ -650,6 +780,7 @@ class _CategoryGrid extends StatelessWidget {
 class _ProductCarousel extends StatelessWidget {
   final SectionModel section;
   final HomeController controller;
+
   const _ProductCarousel({required this.section, required this.controller});
 
   @override
@@ -687,6 +818,7 @@ class _ProductCarousel extends StatelessWidget {
 class _ProductCard extends StatelessWidget {
   final SectionItem product;
   final HomeController controller;
+
   const _ProductCard({required this.product, required this.controller});
 
   @override
@@ -863,6 +995,7 @@ class _ProductCard extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 class _OfferStrip extends StatelessWidget {
   final SectionModel section;
+
   const _OfferStrip({required this.section});
 
   @override
@@ -1079,6 +1212,7 @@ class _HomeShimmer extends StatelessWidget {
 class _ErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
+
   const _ErrorView({required this.message, required this.onRetry});
 
   @override

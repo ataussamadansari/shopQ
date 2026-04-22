@@ -1,7 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
-  static String baseUrl = dotenv.env['BASE_URL']!.replaceAll(RegExp(r'/$'), '');
+  static String baseUrl = dotenv.env['BASE_URL']!;
   static String apiUrl = "$baseUrl/api/v1";
   static String imageBaseUrl = "$baseUrl/storage";
 
