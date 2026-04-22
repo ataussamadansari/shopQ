@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -51,18 +53,28 @@ class HomeScreen extends GetView<HomeController> {
                   onProfile: controller.goToProfile,
                 ),
               ),*/
-              _AppBar(
-                color: color,
-                userName: userName,
-                pinCode: pinCode,
-                statusBarHeight: statusBarH,
-                onCart: controller.goToCart,
-                onProfile: controller.goToProfile,
-                tabs: tabs,
-                selectedTab: selectedTab,
-                onTabSelected: controller.onTabSelected,
-                topPadding: statusBarH,
-              ),
+              if (isLoading)
+                SliverToBoxAdapter(child: _AppBarShimmer())
+              else if (hasError)
+                SliverToBoxAdapter(
+                  child: _ErrorView(
+                    message: controller.errorMessage.value,
+                    onRetry: controller.loadHome,
+                  ),
+                )
+              else
+                _AppBar(
+                  color: color,
+                  userName: userName,
+                  pinCode: pinCode,
+                  statusBarHeight: statusBarH,
+                  onCart: controller.goToCart,
+                  onProfile: controller.goToProfile,
+                  tabs: tabs,
+                  selectedTab: selectedTab,
+                  onTabSelected: controller.onTabSelected,
+                  topPadding: statusBarH,
+                ),
 
               // Sticky header — Now FLOATS (hides on scroll down, shows on scroll up)
               /*SliverPersistentHeader(
@@ -135,6 +147,7 @@ class _AppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+      actionsPadding: EdgeInsets.symmetric(horizontal: 12),
       automaticallyImplyLeading: false,
       backgroundColor: color,
       pinned: true,
@@ -146,12 +159,28 @@ class _AppBar extends StatelessWidget {
             Get.toNamed(Routes.cart);
           },
           icon: Icon(Icons.shopping_cart_outlined, color: Colors.white),
+          style: ButtonStyle(
+            iconColor: WidgetStatePropertyAll(Colors.white),
+            elevation: WidgetStateProperty.all(1),
+            shadowColor: WidgetStatePropertyAll(color),
+            backgroundColor: WidgetStateProperty.all(
+              color.withValues(green: 0.5, alpha: 0.5),
+            ),
+          ),
         ),
         IconButton(
+          style: ButtonStyle(
+            iconColor: WidgetStatePropertyAll(Colors.white),
+            elevation: WidgetStateProperty.all(1),
+            shadowColor: WidgetStatePropertyAll(color),
+            backgroundColor: WidgetStateProperty.all(
+              color.withValues(green: 0.5, alpha: 0.5),
+            ),
+          ),
           onPressed: () {
             Get.toNamed(Routes.profile);
           },
-          icon: Icon(Icons.person, color: Colors.white),
+          icon: Icon(Icons.person),
         ),
       ],
       bottom: PreferredSize(
@@ -1141,6 +1170,17 @@ class _SectionHeader extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 //  SHIMMER + ERROR
 // ─────────────────────────────────────────────────────────────────────────────
+class _AppBarShimmer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade200,
+      highlightColor: Colors.grey.shade100,
+      child: Container(height: 225, color: Colors.white),
+    );
+  }
+}
+
 class _HomeShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
